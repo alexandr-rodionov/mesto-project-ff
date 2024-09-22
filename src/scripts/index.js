@@ -39,12 +39,13 @@ function handleEditProfileFormSubmit(e) {
 function handleNewPlaceFormSubmit(e) {
   e.preventDefault();
 
-  const nameCard = formNewPlace.querySelector('.popup__input_type_card-name').value;
-  const linkCard = formNewPlace.querySelector('.popup__input_type_url').value;
+  let nameCard = formNewPlace.querySelector('.popup__input_type_card-name');
+  let linkCard = formNewPlace.querySelector('.popup__input_type_url');
 
-  placesList.prepend(createCard(linkCard, nameCard, removeCard, likeCard, openPopupImage));
+  placesList.prepend(createCard(linkCard.value, nameCard.value, removeCard, likeCard, openPopupImage));
 
   closePopup(popupNewCard);
+  formNewPlace.reset();
 };
 
 // Popup image

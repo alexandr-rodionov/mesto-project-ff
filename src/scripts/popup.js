@@ -10,7 +10,7 @@ function toggleBodyScroll(lock) {
 // Pop-up window opening
 
 export function openPopup(popup) {
-  popup.classList.toggle('popup_is-opened');
+  popup.classList.add('popup_is-opened');
   toggleBodyScroll(true);
   popup.addEventListener('mousedown', closePopupOnBackDropClick);
   document.addEventListener('keydown', closePopupOnPressEsc);
@@ -19,14 +19,10 @@ export function openPopup(popup) {
 // Pop-up window closing
 
 export function closePopup(popup) {
-  const popupForm = popup.querySelector('.popup__form');
-
-  popup.classList.toggle('popup_is-opened');
+  popup.classList.remove('popup_is-opened');
   toggleBodyScroll(false);
   popup.removeEventListener('mousedown', closePopupOnBackDropClick);
   document.removeEventListener('keydown', closePopupOnPressEsc);
-
-  if (popupForm) { popupForm.reset(); }
 }
 
 // Pop-up window closing on press Esc key
