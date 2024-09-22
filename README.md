@@ -1,20 +1,23 @@
-# Основы JavaScript, базовые типы, работа с DOM (5 спринт)
-## Проектная работа "Mesto на JavaScript"
+# Работы с событиями и формами в JS. Сборка кода и модульность (6 спринт)
+## Проектная работа "Mesto. Сборка, модульность, модальные окна"
 
 ### Структура:
-- main/ — корневой каталог
-- main/blocks/ — каталог стилей блоков и элементов
-- main/images/ - каталог изображений
-- main/pages/ - каталог импорта стилей
-- main/scripts/ — каталог скриптов
-- main/vendor/ — каталог шрифтов и сброса браузерных стилей
+- src/ — корневой каталог
+- src/blocks/ — каталог стилей блоков и элементов
+- src/images/ - каталог изображений
+- src/pages/ - каталог импорта стилей
+- src/scripts/ — каталог скриптов
+- src/vendor/ — каталог шрифтов и сброса браузерных стилей
 
 ### Файлы:
-- main/index.html — HTML-файл страницы
-- main/scripts/cards.js — массив исходных карточек
-- main/scripts/index.js - логика загрузки и удаления карточки
-- main/vendor/fonts.css - шрифты
-- main/vendor/normalize.css - нормализатор стилей
+- src/index.html — HTML-файл страницы
+- src/scripts/card.js — логика работы с карточками
+- src/scripts/cards.js — массив исходных карточек
+- src/scripts/index.js - логика работы страницы
+- src/scripts/popup.js - логика работы с модальными окнами
+
+- src/vendor/fonts.css - шрифты
+- src/vendor/normalize.css - нормализатор стилей
 
 ____
-**Ссылка на проект _[Mesto на JavaScript](https://github.com/alexandr-rodionov/mesto-project-ff.git)_**
+**Ссылка на проект _[Mesto](https://github.com/alexandr-rodionov/mesto-project-ff.git)_**
