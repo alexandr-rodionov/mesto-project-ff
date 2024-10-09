@@ -2,11 +2,20 @@ import '../pages/index.css';
 import { initialCards } from './cards.js';
 import { createCard, removeCard, likeCard } from './card.js';
 import { openPopup, closePopup } from './popup.js';
+import { enableValidation, clearValidation } from './validation.js';
+import { getProfile, getCards, patchProfile, postCard, patchAvatar} from './api.js';
 
 // DOM nodes
 
+let userId;
+
 const content = document.querySelector('.content');
 const placesList = content.querySelector('.places__list');
+
+const profileImage = content.querySelector('.profile__image');
+const popupEditAvatar = document.querySelector('.popup_type_edit-avatar');
+const closePopupEditAvatarButton = popupEditAvatar.querySelector('.popup__close');
+const formEditAvatar = popupEditAvatar.querySelector('.popup__form');
 
 const profileName = content.querySelector('.profile__title');
 const openPopupEditProfileButton = content.querySelector('.profile__edit-button');
@@ -25,27 +34,57 @@ const formNewPlace = popupNewCard.querySelector('.popup__form');
 const popupImage = document.querySelector('.popup_type_image');
 const closePopupImage = popupImage.querySelector('.popup__close');
 
+const validationConfig = {
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
+  inactiveButtonClass: 'popup__button_disabled',
+  inputErrorClass: 'popup__input_type_error',
+  errorClass: 'popup__error_visible'
+};
+
 // Handle submit
+
+function handleEditAvatarFormSubmit(e) {
+  e.preventDefault();
+
+  const avatarLink = popupEditAvatar.querySelector('.popup__input_type_url');
+
+  patchAvatar(avatarLink.value)
+   .then(res => {
+    profileImage.style.backgroundImage = `url(${res.avatar})`;
+    closePopup(popupEditAvatar);
+    clearValidation(popupEditAvatar, validationConfig)
+    formEditAvatar.reset();
+   })
+   .catch(err => console.log(err));
+};
 
 function handleEditProfileFormSubmit(e) {
   e.preventDefault();
 
-  profileName.textContent = inputNameFormEditProfile.value;
-  profileActivity.textContent = inputActivityFormEditProfile.value;
-
-  closePopup(popupEditProfile);
+  patchProfile(inputNameFormEditProfile.value, inputActivityFormEditProfile.value)
+   .then(res => {
+    updateProfileInfo(res);
+    closePopup(popupEditProfile);
+   })
+   .catch(err => console.log(err));
 };
 
 function handleNewPlaceFormSubmit(e) {
   e.preventDefault();
 
-  let nameCard = formNewPlace.querySelector('.popup__input_type_card-name');
-  let linkCard = formNewPlace.querySelector('.popup__input_type_url');
+  const cardName = formNewPlace.querySelector('.popup__input_type_card-name');
+  const cardLink = formNewPlace.querySelector('.popup__input_type_url');
 
-  placesList.prepend(createCard(linkCard.value, nameCard.value, removeCard, likeCard, openPopupImage));
-
-  closePopup(popupNewCard);
-  formNewPlace.reset();
+  postCard(cardName.value, cardLink.value)
+    .then(res => {
+      placesList.prepend(createCard(res, removeCard, likeCard, openPopupImage, userId));
+      closePopup(popupNewCard);
+      clearValidation(popupNewCard, validationConfig)
+      formNewPlace.reset();
+    })
+    .catch(err => console.log(err));
 };
 
 // Popup image
@@ -63,10 +102,20 @@ function openPopupImage() {
 
 // Edit profile
 
+profileImage.addEventListener('click', () => {
+  openPopup(popupEditAvatar);
+});
+
+closePopupEditAvatarButton.addEventListener('click', () => {
+  closePopup(popupEditAvatar);
+});
+
+formEditAvatar.addEventListener('submit', handleEditAvatarFormSubmit);
+
 openPopupEditProfileButton.addEventListener('click', () => {
   inputNameFormEditProfile.value = profileName.textContent;
   inputActivityFormEditProfile.value = profileActivity.textContent;
-
+  clearValidation(popupEditProfile, validationConfig);
   openPopup(popupEditProfile);
 });
 
@@ -94,8 +143,26 @@ closePopupImage.addEventListener('click', () => {
   closePopup(popupImage);
 });
 
-// Initializing cards from array
+// Update profile information
 
-initialCards.forEach(item => {
-  placesList.append(createCard(item.link, item.name, removeCard, likeCard, openPopupImage));
-});
+const updateProfileInfo = (userInfo) => {
+  profileName.textContent = userInfo.name;
+  profileActivity.textContent = userInfo.about;
+  profileImage.style.backgroundImage = `url(${userInfo.avatar})`;
+}
+
+// Get requsts
+
+Promise.all([getProfile(), getCards()])
+  .then(([userInfo, cardInfo]) => {
+    userId = userInfo._id;
+    updateProfileInfo(userInfo);
+    cardInfo.forEach(item => {
+      placesList.append(createCard(item, removeCard, likeCard, openPopupImage, userId));
+    });
+  })
+  .catch(err => console.error(err));
+
+// Validation form
+
+enableValidation(validationConfig);

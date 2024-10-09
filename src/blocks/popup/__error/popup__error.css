@@ -1,0 +1,9 @@
+.popup__error {
+  opacity: 0;
+  color: #f00;
+  font-size: 12px;
+  /* position: absolute;
+  top: calc(100% + 5px);
+  left: 0; */
+  transition: 0.3s;
+}
