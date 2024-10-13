@@ -1,4 +1,6 @@
 .popup__button_disabled {
+  border: 1px solid;
   opacity: 0.2;
   pointer-events: none;
+  mix-blend-mode: difference;
 }

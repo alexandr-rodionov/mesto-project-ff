@@ -1,0 +1,19 @@
+.preloader {
+  margin: auto;
+  border: 3px solid #fff9;
+  border-radius: 50%;
+  border-block-end-color: #fff;
+  animation: loading infinite linear 1.5s;
+  inline-size: 10%;
+  aspect-ratio: 1/1;
+}
+
+@keyframes loading {
+  0% {
+    rotate: 0deg;
+  }
+
+  100% {
+    rotate: 360deg;
+  }
+}

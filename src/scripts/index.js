@@ -1,13 +1,12 @@
 import '../pages/index.css';
-import { initialCards } from './cards.js';
-import { createCard, removeCard, likeCard } from './card.js';
+import { createCard, likeCard } from './card.js';
 import { openPopup, closePopup } from './popup.js';
 import { enableValidation, clearValidation } from './validation.js';
-import { getProfile, getCards, patchProfile, postCard, patchAvatar} from './api.js';
+import { reqGetProfile, reqGetCards, reqPatchProfile, reqPostCard, reqPatchAvatar, reqDeleteCard} from './api.js';
+import { showPreloader, removePreloader, changeSubmitButtonText, preloadBlur } from './improvedUX.js';
+
 
 // DOM nodes
-
-let userId;
 
 const content = document.querySelector('.content');
 const placesList = content.querySelector('.places__list');
@@ -34,6 +33,26 @@ const formNewPlace = popupNewCard.querySelector('.popup__form');
 const popupImage = document.querySelector('.popup_type_image');
 const closePopupImage = popupImage.querySelector('.popup__close');
 
+const popupConfirm = document.querySelector('.popup_type_confirm');
+const closePopupConfirm = popupConfirm.querySelector('.popup__close');
+const formConfirm = popupConfirm.querySelector('.popup__form');
+
+// For preaload
+
+const places = content.querySelector('.places');
+const preloadElement = document.createElement('div');
+const listBlur = [
+  profileImage,
+  profileName,
+  profileActivity
+];
+
+// User ID
+
+let userId;
+
+// Validation configuration
+
 const validationConfig = {
   formSelector: '.popup__form',
   inputSelector: '.popup__input',
@@ -43,51 +62,103 @@ const validationConfig = {
   errorClass: 'popup__error_visible'
 };
 
-// Handle submit
+// Update profile
 
-function handleEditAvatarFormSubmit(e) {
+const updateProfileInfo = (userInfo) => {
+  profileName.textContent = userInfo.name;
+  profileActivity.textContent = userInfo.about;
+  profileImage.style.backgroundImage = `url(${userInfo.avatar})`;
+}
+
+// Avatar
+
+const handleEditAvatarFormSubmit = e => {
   e.preventDefault();
+
+  changeSubmitButtonText(popupEditAvatar, "Сохранение...");
 
   const avatarLink = popupEditAvatar.querySelector('.popup__input_type_url');
 
-  patchAvatar(avatarLink.value)
+  reqPatchAvatar(avatarLink.value)
    .then(res => {
     profileImage.style.backgroundImage = `url(${res.avatar})`;
     closePopup(popupEditAvatar);
     clearValidation(popupEditAvatar, validationConfig)
     formEditAvatar.reset();
    })
-   .catch(err => console.log(err));
+   .catch(err => console.log(err))
+   .finally( () => changeSubmitButtonText(popupEditAvatar, "Сохранение"));
 };
+profileImage.addEventListener('click', () => openPopup(popupEditAvatar));
+closePopupEditAvatarButton.addEventListener('click', () => closePopup(popupEditAvatar));
+formEditAvatar.addEventListener('submit', handleEditAvatarFormSubmit);
 
-function handleEditProfileFormSubmit(e) {
+// Profile info
+
+const handleEditProfileFormSubmit = e => {
   e.preventDefault();
 
-  patchProfile(inputNameFormEditProfile.value, inputActivityFormEditProfile.value)
+  changeSubmitButtonText(popupEditProfile, "Сохранение...");
+
+  reqPatchProfile(inputNameFormEditProfile.value, inputActivityFormEditProfile.value)
    .then(res => {
-    updateProfileInfo(res);
-    closePopup(popupEditProfile);
+      updateProfileInfo(res);
+      closePopup(popupEditProfile);
    })
-   .catch(err => console.log(err));
+   .catch(err => console.log(err))
+   .finally( () => changeSubmitButtonText(popupEditProfile, "Сохранение"));
 };
+openPopupEditProfileButton.addEventListener('click', () => {
+  inputNameFormEditProfile.value = profileName.textContent;
+  inputActivityFormEditProfile.value = profileActivity.textContent;
+  clearValidation(popupEditProfile, validationConfig);
+  openPopup(popupEditProfile);
+});
+closePopupEditProfileButton.addEventListener('click', () => closePopup(popupEditProfile));
+formEditProfile.addEventListener('submit', handleEditProfileFormSubmit);
 
-function handleNewPlaceFormSubmit(e) {
+// New place
+
+const handleNewPlaceFormSubmit = e => {
   e.preventDefault();
+
+  changeSubmitButtonText(popupNewCard, "Сохранение...");
 
   const cardName = formNewPlace.querySelector('.popup__input_type_card-name');
   const cardLink = formNewPlace.querySelector('.popup__input_type_url');
 
-  postCard(cardName.value, cardLink.value)
+  reqPostCard(cardName.value, cardLink.value)
     .then(res => {
       placesList.prepend(createCard(res, removeCard, likeCard, openPopupImage, userId));
       closePopup(popupNewCard);
       clearValidation(popupNewCard, validationConfig)
       formNewPlace.reset();
     })
-    .catch(err => console.log(err));
+    .catch(err => console.log(err))
+    .finally( () => changeSubmitButtonText(popupNewCard, "Сохранение"));
 };
+openPopupNewCardButton.addEventListener('click', () => openPopup(popupNewCard));
+closePopupNewCardButton.addEventListener('click', () => closePopup(popupNewCard));
+formNewPlace.addEventListener('submit', handleNewPlaceFormSubmit);
 
-// Popup image
+// Remove card
+
+const handleConfirmFormSubmit = (e, card, cardId) => {
+  e.preventDefault();
+
+  reqDeleteCard(cardId)
+    .then(card.remove())
+    .catch(err => console.error(err));
+
+  closePopup(popupConfirm);
+};
+const removeCard = (card, cardId) => {
+  openPopup(popupConfirm);
+  formConfirm.addEventListener('submit', e => handleConfirmFormSubmit(e, card, cardId));
+};
+closePopupConfirm.addEventListener('click', () => closePopup(popupConfirm));
+
+// Image
 
 function openPopupImage() {
   const image = popupImage.querySelector('.popup__image');
@@ -99,61 +170,20 @@ function openPopupImage() {
 
   openPopup(popupImage);
 };
+closePopupImage.addEventListener('click', () => closePopup(popupImage));
 
-// Edit profile
+// Loading
 
-profileImage.addEventListener('click', () => {
-  openPopup(popupEditAvatar);
-});
+showPreloader(places, preloadElement);
+preloadBlur(listBlur);
 
-closePopupEditAvatarButton.addEventListener('click', () => {
-  closePopup(popupEditAvatar);
-});
+// Validation form
 
-formEditAvatar.addEventListener('submit', handleEditAvatarFormSubmit);
+enableValidation(validationConfig);
 
-openPopupEditProfileButton.addEventListener('click', () => {
-  inputNameFormEditProfile.value = profileName.textContent;
-  inputActivityFormEditProfile.value = profileActivity.textContent;
-  clearValidation(popupEditProfile, validationConfig);
-  openPopup(popupEditProfile);
-});
+// Profile & Cards GET requests
 
-closePopupEditProfileButton.addEventListener('click', () => {
-  closePopup(popupEditProfile);
-});
-
-formEditProfile.addEventListener('submit', handleEditProfileFormSubmit);
-
-// New card
-
-openPopupNewCardButton.addEventListener('click', () => {
-  openPopup(popupNewCard);
-});
-
-closePopupNewCardButton.addEventListener('click', () => {
-  closePopup(popupNewCard);
-});
-
-formNewPlace.addEventListener('submit', handleNewPlaceFormSubmit);
-
-// Image card
-
-closePopupImage.addEventListener('click', () => {
-  closePopup(popupImage);
-});
-
-// Update profile information
-
-const updateProfileInfo = (userInfo) => {
-  profileName.textContent = userInfo.name;
-  profileActivity.textContent = userInfo.about;
-  profileImage.style.backgroundImage = `url(${userInfo.avatar})`;
-}
-
-// Get requsts
-
-Promise.all([getProfile(), getCards()])
+Promise.all([reqGetProfile(), reqGetCards()])
   .then(([userInfo, cardInfo]) => {
     userId = userInfo._id;
     updateProfileInfo(userInfo);
@@ -161,8 +191,11 @@ Promise.all([getProfile(), getCards()])
       placesList.append(createCard(item, removeCard, likeCard, openPopupImage, userId));
     });
   })
-  .catch(err => console.error(err));
+  .catch(err => console.log(err))
+  .finally(() => {
+    const preloader = document.querySelector('.preloader');
+    const withBlur = document.querySelectorAll('.filter-blur');
 
-// Validation form
-
-enableValidation(validationConfig);
+    removePreloader(preloader);
+    preloadBlur(withBlur);
+  });

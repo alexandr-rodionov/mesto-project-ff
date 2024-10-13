@@ -1,3 +1,5 @@
+// Main configuration
+
 const config = {
   baseUrl: 'https://nomoreparties.co/v1/wff-cohort-24',
   headers: {
@@ -6,21 +8,21 @@ const config = {
   }
 };
 
-export const getProfile = () => {
+export const reqGetProfile = () => {
   return fetch(`${config.baseUrl}/users/me`, {
     headers: config.headers
   })
     .then(status);
 };
 
-export const getCards = () => {
+export const reqGetCards = () => {
   return fetch(`${config.baseUrl}/cards`, {
     headers: config.headers
   })
     .then(status);
 };
 
-export const patchProfile = (profileName, profileActivity) => {
+export const reqPatchProfile = (profileName, profileActivity) => {
   return fetch(`${config.baseUrl}/users/me`, {
     headers: config.headers,
     method: 'PATCH',
@@ -32,7 +34,7 @@ export const patchProfile = (profileName, profileActivity) => {
     .then(status);
 };
 
-export const postCard = (cardName, cardLink) => {
+export const reqPostCard = (cardName, cardLink) => {
   return fetch(`${config.baseUrl}/cards`, {
     headers: config.headers,
     method: 'POST',
@@ -44,7 +46,7 @@ export const postCard = (cardName, cardLink) => {
     .then(status);
 };
 
-export const deleteCard = (cardId) => {
+export const reqDeleteCard = (cardId) => {
   return fetch(`${config.baseUrl}/cards/${cardId}`, {
     headers: config.headers,
     method: 'DELETE'
@@ -52,7 +54,7 @@ export const deleteCard = (cardId) => {
     .then(status);
 };
 
-export const putLike = (cardId) => {
+export const reqPutLike = (cardId) => {
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     headers: config.headers,
     method: 'PUT'
@@ -60,7 +62,7 @@ export const putLike = (cardId) => {
     .then(status);
 };
 
-export const deleteLike = (cardId) => {
+export const reqDeleteLike = (cardId) => {
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     headers: config.headers,
     method: 'DELETE'
@@ -68,7 +70,7 @@ export const deleteLike = (cardId) => {
     .then(status);
 };
 
-export const patchAvatar = (link) => {
+export const reqPatchAvatar = (link) => {
   return fetch(`${config.baseUrl}/users/me/avatar`, {
     headers: config.headers,
     method: 'PATCH',
@@ -79,10 +81,9 @@ export const patchAvatar = (link) => {
     .then(status);
 };
 
-const status = (res) => {
-  if (res.ok) {
-    return res.json();
-  }
+// Status of requests
 
+const status = (res) => {
+  if (res.ok) return res.json();
   return Promise.reject(`Ошибка: ${res.status}`);
 };
