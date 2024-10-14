@@ -83,8 +83,8 @@ const handleEditAvatarFormSubmit = e => {
    .then(res => {
     profileImage.style.backgroundImage = `url(${res.avatar})`;
     closePopup(popupEditAvatar);
-    clearValidation(popupEditAvatar, validationConfig)
     formEditAvatar.reset();
+    clearValidation(popupEditAvatar, validationConfig);
    })
    .catch(err => console.log(err))
    .finally( () => changeSubmitButtonText(popupEditAvatar, "Сохранение"));
@@ -128,11 +128,11 @@ const handleNewPlaceFormSubmit = e => {
   const cardLink = formNewPlace.querySelector('.popup__input_type_url');
 
   reqPostCard(cardName.value, cardLink.value)
-    .then(res => {
-      placesList.prepend(createCard(res, removeCard, likeCard, openPopupImage, userId));
+    .then(element => {
+      placesList.prepend(createCard({element, removeCard, likeCard, openPopupImage, userId}));
       closePopup(popupNewCard);
-      clearValidation(popupNewCard, validationConfig)
       formNewPlace.reset();
+      clearValidation(popupNewCard, validationConfig);
     })
     .catch(err => console.log(err))
     .finally( () => changeSubmitButtonText(popupNewCard, "Сохранение"));
@@ -154,7 +154,7 @@ const handleConfirmFormSubmit = (e, card, cardId) => {
 };
 const removeCard = (card, cardId) => {
   openPopup(popupConfirm);
-  formConfirm.addEventListener('submit', e => handleConfirmFormSubmit(e, card, cardId));
+  formConfirm.onsubmit = e => handleConfirmFormSubmit(e, card, cardId);
 };
 closePopupConfirm.addEventListener('click', () => closePopup(popupConfirm));
 
@@ -187,8 +187,8 @@ Promise.all([reqGetProfile(), reqGetCards()])
   .then(([userInfo, cardInfo]) => {
     userId = userInfo._id;
     updateProfileInfo(userInfo);
-    cardInfo.forEach(item => {
-      placesList.append(createCard(item, removeCard, likeCard, openPopupImage, userId));
+    cardInfo.forEach(element => {
+      placesList.append(createCard({element, removeCard, likeCard, openPopupImage, userId}));
     });
   })
   .catch(err => console.log(err))

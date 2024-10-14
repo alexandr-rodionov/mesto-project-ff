@@ -1,5 +1,6 @@
 const showInputError = (formElement, inputElement, errorMessage, config) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
+
   inputElement.classList.add(config.inputErrorClass);
   errorElement.textContent = errorMessage;
   errorElement.classList.add(config.errorClass);
@@ -7,7 +8,9 @@ const showInputError = (formElement, inputElement, errorMessage, config) => {
 
 const hideInputError = (formElement, inputElement, config) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
+
   inputElement.classList.remove(config.inputErrorClass);
+  inputElement.setCustomValidity('');
   errorElement.classList.remove(config.errorClass);
   errorElement.textContent = '';
 };
@@ -49,8 +52,10 @@ const hasInvalidInput = (inputList) => {
 const toggleButtonState = (inputList, buttonElement, config) => {
   if (hasInvalidInput(inputList)) {
     buttonElement.classList.add(config.inactiveButtonClass);
+    buttonElement.disabled = true;
   } else {
     buttonElement.classList.remove(config.inactiveButtonClass);
+    buttonElement.disabled = false;
   }
 }
 
@@ -70,5 +75,5 @@ export const clearValidation = (formElement, config) => {
     hideInputError(formElement, inputElement, config);
   });
 
-  buttonElement.classList.remove(config.inactiveButtonClass);
+  toggleButtonState(inputList, buttonElement, config);
 };
