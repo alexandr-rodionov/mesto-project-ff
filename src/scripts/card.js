@@ -43,7 +43,7 @@ export const likeCard = (like, cardId, cardLikeCount) => {
         like.target.classList.add('card__like-button_is-active');
         cardLikeCount.textContent = res.likes.length;
       })
-      .catch(err => console.log(err));
+      .catch(err => console.error(err));
   } else {
     reqDeleteLike(cardId)
       .then(res => {

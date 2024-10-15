@@ -81,13 +81,13 @@ const handleEditAvatarFormSubmit = e => {
 
   reqPatchAvatar(avatarLink.value)
    .then(res => {
-    profileImage.style.backgroundImage = `url(${res.avatar})`;
-    closePopup(popupEditAvatar);
-    formEditAvatar.reset();
-    clearValidation(popupEditAvatar, validationConfig);
+     profileImage.style.backgroundImage = `url(${res.avatar})`;
+     closePopup(popupEditAvatar);
+     formEditAvatar.reset();
+     clearValidation(popupEditAvatar, validationConfig);
    })
-   .catch(err => console.log(err))
-   .finally( () => changeSubmitButtonText(popupEditAvatar, "Сохранение"));
+   .catch(err => console.error(err))
+   .finally(() => changeSubmitButtonText(popupEditAvatar, "Сохранить"));
 };
 profileImage.addEventListener('click', () => openPopup(popupEditAvatar));
 closePopupEditAvatarButton.addEventListener('click', () => closePopup(popupEditAvatar));
@@ -102,11 +102,11 @@ const handleEditProfileFormSubmit = e => {
 
   reqPatchProfile(inputNameFormEditProfile.value, inputActivityFormEditProfile.value)
    .then(res => {
-      updateProfileInfo(res);
-      closePopup(popupEditProfile);
+     updateProfileInfo(res);
+     closePopup(popupEditProfile);
    })
-   .catch(err => console.log(err))
-   .finally( () => changeSubmitButtonText(popupEditProfile, "Сохранение"));
+   .catch(err => console.error(err))
+   .finally( () => changeSubmitButtonText(popupEditProfile, "Сохранить"));
 };
 openPopupEditProfileButton.addEventListener('click', () => {
   inputNameFormEditProfile.value = profileName.textContent;
@@ -134,8 +134,8 @@ const handleNewPlaceFormSubmit = e => {
       formNewPlace.reset();
       clearValidation(popupNewCard, validationConfig);
     })
-    .catch(err => console.log(err))
-    .finally( () => changeSubmitButtonText(popupNewCard, "Сохранение"));
+    .catch(err => console.error(err))
+    .finally( () => changeSubmitButtonText(popupNewCard, "Сохранить"));
 };
 openPopupNewCardButton.addEventListener('click', () => openPopup(popupNewCard));
 closePopupNewCardButton.addEventListener('click', () => closePopup(popupNewCard));
@@ -147,10 +147,11 @@ const handleConfirmFormSubmit = (e, card, cardId) => {
   e.preventDefault();
 
   reqDeleteCard(cardId)
-    .then(card.remove())
+    .then(() => {
+      card.remove();
+      closePopup(popupConfirm);
+    })
     .catch(err => console.error(err));
-
-  closePopup(popupConfirm);
 };
 const removeCard = (card, cardId) => {
   openPopup(popupConfirm);
@@ -191,7 +192,7 @@ Promise.all([reqGetProfile(), reqGetCards()])
       placesList.append(createCard({element, removeCard, likeCard, openPopupImage, userId}));
     });
   })
-  .catch(err => console.log(err))
+  .catch(err => console.error(err))
   .finally(() => {
     const preloader = document.querySelector('.preloader');
     const withBlur = document.querySelectorAll('.filter-blur');
